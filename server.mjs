@@ -870,17 +870,41 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === "POST" && req.url === "/api/lesson") {
       const body = await readBody(req);
-      const lesson = isAiEnabled() ? await generateAiLesson(body) : pickLocalLesson(body);
-      sendJson(res, 200, { lesson, aiEnabled: isAiEnabled(), provider: activeProvider(), bankSize: lessonBank.length });
+      let lesson;
+      let aiUsed = false;
+      try {
+        if (isAiEnabled()) {
+          lesson = await generateAiLesson(body);
+          aiUsed = true;
+        } else {
+          lesson = pickLocalLesson(body);
+        }
+      } catch (err) {
+        console.error("AI Lesson Error, falling back to local:", err.message);
+        lesson = pickLocalLesson(body);
+        lesson.aiCoach = "ขออภัยครับ ตอนนี้โควต้า AI เต็มชั่วคราว ระบบกำลังสลับมาใช้โหมดคลังข้อสอบในเครื่องแทนเพื่อให้คุณเรียนได้ต่อเนื่องครับ.";
+      }
+      sendJson(res, 200, { lesson, aiEnabled: aiUsed, provider: activeProvider(), bankSize: lessonBank.length });
       return;
     }
 
     if (req.method === "POST" && req.url === "/api/check") {
       const body = await readBody(req);
-      const result = isAiEnabled()
-        ? await checkAiAnswer(body)
-        : scoreLocalAnswer(body.question || {}, body.userAnswer);
-      sendJson(res, 200, { result, aiEnabled: isAiEnabled(), provider: activeProvider() });
+      let result;
+      let aiUsed = false;
+      try {
+        if (isAiEnabled()) {
+          result = await checkAiAnswer(body);
+          aiUsed = true;
+        } else {
+          result = scoreLocalAnswer(body.question || {}, body.userAnswer);
+        }
+      } catch (err) {
+        console.error("AI Check Error, falling back to local:", err.message);
+        result = scoreLocalAnswer(body.question || {}, body.userAnswer);
+        result.feedback = "ตรวจสอบคำตอบด้วยระบบอัตโนมัติในเครื่อง (AI กำลังพักผ่อนครับ)";
+      }
+      sendJson(res, 200, { result, aiEnabled: aiUsed, provider: activeProvider() });
       return;
     }
 
