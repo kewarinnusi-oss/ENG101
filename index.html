@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0a0e1a">
+    <title>CEFR AI Coach</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="เมนูการเรียน">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">CE</div>
+          <div>
+            <strong>CEFR AI Coach</strong>
+            <span>ห้องฝึกอังกฤษส่วนตัว</span>
+          </div>
+        </div>
+
+        <nav class="nav-list" aria-label="ส่วนต่าง ๆ">
+          <a class="nav-item active" href="#practice">
+            <span aria-hidden="true">◎</span>
+            ฝึกทำโจทย์
+          </a>
+          <a class="nav-item" href="#progress">
+            <span aria-hidden="true">▦</span>
+            ความคืบหน้า
+          </a>
+          <a class="nav-item" href="#coach">
+            <span aria-hidden="true">✦</span>
+            คำแนะนำ
+          </a>
+        </nav>
+
+        <div class="mini-panel">
+          <span class="label">เป้าหมายวันนี้</span>
+          <strong id="todayFocus">ฝึก B1 แบบรวมทักษะ</strong>
+          <p>ทำโจทย์สั้น ๆ แล้วดูเหตุผลทันที เหมาะกับซ้อมก่อนสอบ CEFR.</p>
+          <p class="bank-line">คลังโจทย์ <strong id="bankSize">100+</strong> ข้อ</p>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <section class="topbar" aria-label="ตัวเลือกการฝึก">
+          <div>
+            <p class="eyebrow">โค้ชฝึก CEFR ส่วนตัว</p>
+            <h1>ฝึกอังกฤษแบบโจทย์ทีละข้อ พร้อม AI อธิบายหลังตอบ</h1>
+          </div>
+
+          <div class="score-strip" aria-label="คะแนนปัจจุบัน">
+            <div>
+              <span>สตรีก</span>
+              <strong id="streak">0</strong>
+            </div>
+            <div>
+              <span>ความแม่นยำ</span>
+              <strong id="accuracy">0%</strong>
+            </div>
+            <div>
+              <span>คะแนน</span>
+              <strong id="totalScore">0</strong>
+            </div>
+            <div>
+              <span>ข้อที่</span>
+              <strong id="questionCount">0</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="session-panel" aria-label="สถานะชุดฝึก">
+          <div>
+            <p class="eyebrow">ชุดฝึก CEFR</p>
+            <h2>ทำให้ครบ 10 ข้อ แล้วดูสรุปจุดที่ควรทบทวน</h2>
+          </div>
+          <div class="session-actions">
+            <span id="sessionProgress">0 / 10 ข้อ</span>
+            <button class="secondary-button" id="restartSessionBtn" type="button">เริ่มชุดใหม่</button>
+          </div>
+          <div class="progress-track" aria-hidden="true">
+            <div class="progress-fill" id="sessionProgressFill"></div>
+          </div>
+        </section>
+
+        <section class="workspace-grid" id="practice">
+          <section class="practice-card" aria-labelledby="questionTitle">
+            <div class="control-row">
+              <label>
+                ระดับ
+                <select id="levelSelect">
+                  <option>A1</option>
+                  <option>A2</option>
+                  <option selected>B1</option>
+                  <option>B2</option>
+                  <option>C1</option>
+                  <option>Mixed</option>
+                </select>
+              </label>
+              <label>
+                ทักษะ
+                <select id="skillSelect">
+                  <option value="Mixed" selected>รวมทักษะ</option>
+                  <option value="Grammar">ไวยากรณ์</option>
+                  <option value="Vocabulary">คำศัพท์</option>
+                  <option value="Reading">อ่านจับใจความ</option>
+                  <option value="Writing">เขียน</option>
+                  <option value="Use of English">การใช้ภาษาอังกฤษ</option>
+                </select>
+              </label>
+              <label>
+                จำนวนข้อ
+                <select id="sessionSizeSelect">
+                  <option value="5">5 ข้อ</option>
+                  <option value="10" selected>10 ข้อ</option>
+                  <option value="20">20 ข้อ</option>
+                  <option value="50">50 ข้อ</option>
+                </select>
+              </label>
+              <button class="icon-button" id="newQuestionBtn" title="โจทย์ใหม่" aria-label="โจทย์ใหม่">
+                ↻
+              </button>
+            </div>
+
+            <div class="lesson-meta">
+              <span id="questionLevel">B1</span>
+              <span id="questionSkill">รวมทักษะ</span>
+              <span id="aiStatus">โหมดตัวอย่าง</span>
+              <span id="pointBadge">เก็บคะแนน</span>
+            </div>
+
+            <div class="question-block">
+              <p class="eyebrow" id="questionPrompt">กำลังโหลด...</p>
+              <h2 id="questionTitle">กำลังเตรียมโจทย์</h2>
+              <p id="questionContext" class="clickable-text"></p>
+            </div>
+
+            <form id="answerForm" class="answer-area">
+              <div id="choiceList" class="choice-list" role="radiogroup" aria-label="ตัวเลือกคำตอบ"></div>
+              <label id="textAnswerWrap" class="text-answer hidden">
+                คำตอบของคุณ
+                <input id="textAnswer" type="text" autocomplete="off" placeholder="พิมพ์คำตอบที่นี่">
+              </label>
+              <button class="primary-button" id="checkAnswerBtn" type="submit">ตรวจคำตอบ</button>
+              <button class="secondary-button" id="skipQuestionBtn" type="button">ข้ามโจทย์นี้</button>
+            </form>
+          </section>
+
+          <section class="coach-card" id="coach" aria-labelledby="coachTitle">
+            <div class="coach-header">
+              <div>
+                <p class="eyebrow">เฉลยและคำแนะนำ</p>
+                <h2 id="coachTitle">ข้อนี้ฝึกอะไร</h2>
+              </div>
+              <span id="resultBadge" class="result-badge neutral">พร้อม</span>
+            </div>
+
+            <div class="feedback-stack">
+              <article>
+                <span class="label">หลักภาษาสั้น ๆ</span>
+                <p id="microLesson">ตอบโจทย์แล้วระบบจะสรุปหลักภาษาให้แบบสั้น ๆ.</p>
+              </article>
+              <article>
+                <span class="label">สำคัญยังไง</span>
+                <p id="benefit">แต่ละข้อเชื่อมกับทักษะที่ CEFR ใช้วัดจริง เช่น grammar, reading inference, writing register.</p>
+              </article>
+              <article>
+                <span class="label">คำแนะนำ</span>
+                <p id="coachNote">เลือกระดับและทักษะ แล้วกดเริ่มโจทย์ใหม่ได้เลย.</p>
+              </article>
+              <article class="translation-box">
+                <span class="label">กดคำศัพท์เพื่อแปล</span>
+                <p id="translationNote">กดคำอังกฤษในโจทย์เพื่อดูคำแปล ความหมาย และตัวอย่าง.</p>
+              </article>
+            </div>
+          </section>
+        </section>
+
+        <section class="summary-panel hidden" id="summaryPanel" aria-label="สรุปผลชุดฝึก">
+          <div class="summary-hero">
+            <p class="eyebrow">สรุปท้ายชุด</p>
+            <h2 id="summaryTitle">ผลการฝึกของคุณ</h2>
+            <p id="summaryText">ทำครบชุดแล้ว ระบบจะสรุปคะแนนและจุดที่ควรทบทวนให้ตรงนี้.</p>
+          </div>
+          <div class="summary-grid">
+            <article>
+              <span class="label">คะแนนรวม</span>
+              <strong id="summaryScore">0/0</strong>
+            </article>
+            <article>
+              <span class="label">ความแม่นยำ</span>
+              <strong id="summaryAccuracy">0%</strong>
+            </article>
+            <article>
+              <span class="label">ข้อที่ควรทบทวน</span>
+              <strong id="summaryWrong">0</strong>
+            </article>
+          </div>
+          <div class="summary-review">
+            <span class="label">ข้อที่ตอบผิด / ควรจำ</span>
+            <div id="reviewList"></div>
+          </div>
+          <div class="summary-actions">
+            <button class="primary-button" id="summaryRestartBtn" type="button">เริ่มชุดใหม่</button>
+          </div>
+        </section>
+
+        <section class="progress-band" id="progress" aria-label="ประวัติคำศัพท์">
+          <div class="progress-copy">
+            <p class="eyebrow">คำศัพท์ล่าสุด</p>
+            <h2>คำที่คุณเพิ่งกดแปล</h2>
+            <p>ระบบจะจำคำศัพท์ 5 คำล่าสุดที่คุณกดแปลไว้ตรงนี้ เพื่อให้คุณทบทวนได้ง่ายขึ้นครับ</p>
+          </div>
+          <div class="vocab-grid" id="recentVocabList">
+            <p class="empty-text">เริ่มกดคำศัพท์ในโจทย์เพื่อดูคำแปลได้เลย!</p>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js" type="module"></script>
+  </body>
+</html>

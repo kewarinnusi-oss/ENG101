@@ -1,0 +1,17 @@
+{
+  "name": "CEFR AI Coach",
+  "short_name": "CEFR Coach",
+  "description": "A mobile-friendly CEFR English practice web app with scored questions and AI feedback.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#edf5f2",
+  "theme_color": "#0a0e1a",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
