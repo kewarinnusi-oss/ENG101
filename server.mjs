@@ -1,25 +1,10 @@
 import http from "node:http";
-import { readFile, readFileSync } from "node:fs";
-import { readFile as readFileAsync } from "node:fs/promises";
+import { readFileSync } from "node:fs";
+import { readFile } from "node:fs/promises";
 import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
-
-// Manual .env loader
-try {
-  const envPath = join(__dirname, ".env");
-  const envContent = readFileSync(envPath, "utf-8");
-  envContent.split("\n").forEach(line => {
-    const [key, ...valueParts] = line.split("=");
-    if (key && valueParts.length > 0) {
-      process.env[key.trim()] = valueParts.join("=").trim();
-    }
-  });
-  console.log(".env file loaded manually");
-} catch (e) {
-  console.log("No .env file found or failed to load");
-}
 
 // Manual .env loader
 try {
